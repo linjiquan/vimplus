@@ -48,7 +48,7 @@ set cindent              " 设置使用C/C++语言的自动缩进方式
 set cinoptions=g0,:0,N-s,(0    " 设置C/C++语言的具体缩进方式
 set smartindent          " 智能的选择对其方式
 filetype indent on       " 自适应不同语言的智能缩进
-set expandtab            " 将制表符扩展为空格
+"set expandtab            " 将制表符扩展为空格
 set tabstop=4            " 设置编辑时制表符占用空格数
 set shiftwidth=4         " 设置格式化时制表符占用空格数
 set softtabstop=4        " 设置4个空格为制表符
@@ -108,22 +108,24 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 call plug#begin('~/.vim/plugged')
 
-Plug 'chxuan/cpp-mode'
+Plug 'chxuan/cpp-mode'						"提供生成函数实现、函数声明/实现跳转、.h .cpp切换等功能
 Plug 'chxuan/vim-edit'
-Plug 'chxuan/change-colorscheme'
-Plug 'chxuan/prepare-code'
+Plug 'chxuan/change-colorscheme'  "方便的文本编辑插件
+Plug 'chxuan/prepare-code'				"新建文件时，生成预定义代码片段
 Plug 'chxuan/vim-buffer'
-Plug 'chxuan/vimplus-startify'
-Plug 'chxuan/tagbar'
-Plug 'Valloric/YouCompleteMe'
-Plug 'Yggdroot/LeaderF'
+Plug 'chxuan/vimplus-startify'			"vimplus开始页面
+Plug 'chxuan/tagbar'								"A class outline viewer for Vim
+Plug 'Valloric/YouCompleteMe'				"A code-completion engine for Vim
+Plug 'SirVer/ultisnips'             "The ultimate snippet solution for Vim
+Plug 'honza/vim-snippets'           "vim-snipmate default snippets (Previously snipmate-snippets)
+Plug 'Yggdroot/LeaderF'							"比ctrlp更强大的文件的模糊搜索工具
 Plug 'mileszs/ack.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'haya14busa/incsearch.vim'
 Plug 'iamcco/mathjax-support-for-mkdp'
 Plug 'iamcco/markdown-preview.vim'
 Plug 'jiangmiao/auto-pairs'
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree'												"A tree explorer plugin for vim
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'godlygeek/tabular'
@@ -148,6 +150,7 @@ Plug 'terryma/vim-smooth-scroll'
 Plug 'rhysd/clever-f.vim'
 Plug 'rhysd/github-complete.vim'
 Plug 'vim-scripts/indentpython.vim'
+Plug 'tomasr/molokai'               "Molokai color scheme for Vim
 
 call plug#end()            
 
@@ -176,6 +179,7 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
+nnoremap <c-w> <c-w>c
 
 " 打开文件自动定位到最后编辑的位置
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif
@@ -183,7 +187,8 @@ autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | execute "
 " 主题
 set background=dark
 let g:onedark_termcolors=256
-colorscheme onedark
+colorscheme molokai
+"colorscheme onedark
 
 " airline
 let g:airline_theme="onedark"
@@ -233,18 +238,19 @@ nnoremap <leader>r :ReplaceTo<space>
 " nerdtree
 nnoremap <silent> <leader>n :NERDTreeToggle<cr>
 inoremap <silent> <leader>n <esc> :NERDTreeToggle<cr>
+map <C-o> :NERDTreeToggle<cr>
 let g:NERDTreeFileExtensionHighlightFullName = 1
 let g:NERDTreeExactMatchHighlightFullName = 1
 let g:NERDTreePatternMatchHighlightFullName = 1
 let g:NERDTreeHighlightFolders = 1         
 let g:NERDTreeHighlightFoldersFullName = 1 
-let g:NERDTreeDirArrowExpandable='▷'
-let g:NERDTreeDirArrowCollapsible='▼'
+let g:NERDTreeDirArrowExpandable='+'
+let g:NERDTreeDirArrowCollapsible='-'
 
 " YCM
 let g:ycm_confirm_extra_conf = 0 
-let g:ycm_error_symbol = '✗'
-let g:ycm_warning_symbol = '✗'
+let g:ycm_error_symbol = 'X'
+let g:ycm_warning_symbol = '!'
 let g:ycm_seed_identifiers_with_syntax = 1 
 let g:ycm_complete_in_comments = 1 
 let g:ycm_complete_in_strings = 1 
@@ -281,6 +287,7 @@ let g:ycm_semantic_triggers.c = ['->', '.', ' ', '(', '[', '&',']']
 let g:tagbar_width = 30
 nnoremap <silent> <leader>t :TagbarToggle<cr>
 inoremap <silent> <leader>t <esc> :TagbarToggle<cr>
+map <C-p> :TagbarToggle<cr>
 
 " incsearch.vim
 map /  <Plug>(incsearch-forward)
@@ -346,6 +353,42 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 nnoremap <leader>g :GV<cr>
 nnoremap <leader>G :GV!<cr>
 nnoremap <leader>gg :GV?<cr>
+
+function! g:UltiSnips_Complete()
+  call UltiSnips#ExpandSnippet()
+  if g:ulti_expand_res == 0
+    if pumvisible()
+      return "\<C-n>"
+    else
+      call UltiSnips#JumpForwards()
+      if g:ulti_jump_forwards_res == 0
+        return "\<TAB>"
+      endif
+    endif
+  endif
+  return ""
+endfunction
+
+function! g:UltiSnips_Reverse()
+  call UltiSnips#JumpBackwards()
+  if g:ulti_jump_backwards_res == 0
+    return "\<C-P>"
+  endif
+
+  return ""
+endfunction
+
+
+if !exists("g:UltiSnipsJumpForwardTrigger")
+  let g:UltiSnipsJumpForwardTrigger = "<tab>"
+endif
+
+if !exists("g:UltiSnipsJumpBackwardTrigger")
+  let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+endif
+
+au InsertEnter * exec "inoremap <silent> " . g:UltiSnipsExpandTrigger     . " <C-R>=g:UltiSnips_Complete()<cr>"
+au InsertEnter * exec "inoremap <silent> " .     g:UltiSnipsJumpBackwardTrigger . " <C-R>=g:UltiSnips_Reverse()<cr>"
 
 " 个性化
 if filereadable(expand($HOME . '/.vimrc.local'))
